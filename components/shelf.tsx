@@ -36,10 +36,15 @@ export function Shelf({ sessions }: ShelfProps) {
   const [searchResults, setSearchResults] = useState<Book[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [selectedBook, setSelectedBook] = useState<Book | null>(null)
+  const [bookCovers, setBookCovers] = useState<{[key: string]: string}>({});
 
   useEffect(() => {
     setFavorites(getFavorites())
   }, [])
+
+  const handleCoverUpdate = (bookKey: string, newCoverUrl: string) => {
+    setBookCovers(prevCovers => ({...prevCovers, [bookKey]: newCoverUrl}));
+  };
 
   // Calculate stats - ONLY for finished books
   const finishedSessions = sessions.filter(s => s.status === 'finished')
@@ -180,9 +185,9 @@ export function Shelf({ sessions }: ShelfProps) {
                   onClick={() => setSelectedBook(favorite)}
                   className="w-full aspect-[2/3] rounded-lg overflow-hidden bg-card border border-border focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  {favorite.coverId ? (
+                  {bookCovers[favorite.key] || favorite.coverId ? (
                     <img
-                      src={`https://covers.openlibrary.org/b/id/${favorite.coverId}-M.jpg`}
+                      src={bookCovers[favorite.key] || `https://covers.openlibrary.org/b/id/${favorite.coverId}-M.jpg`}
                       alt={favorite.title}
                       className="w-full h-full object-cover hover:opacity-80 transition-opacity"
                     />
@@ -337,6 +342,7 @@ export function Shelf({ sessions }: ShelfProps) {
             book={selectedBook}
             isOpen={!!selectedBook}
             onClose={() => setSelectedBook(null)}
+            onCoverUpdate={handleCoverUpdate}
           />
         )}
 
@@ -393,9 +399,9 @@ export function Shelf({ sessions }: ShelfProps) {
                   onClick={() => setSelectedBook(book)}
                   className="w-full flex items-center gap-3 p-3 rounded-xl bg-card border border-border hover:border-primary/50 transition-colors text-left"
                 >
-                  {book.coverId ? (
+                  {bookCovers[book.key] || book.coverId ? (
                     <img
-                      src={`https://covers.openlibrary.org/b/id/${book.coverId}-S.jpg`}
+                      src={bookCovers[book.key] || `https://covers.openlibrary.org/b/id/${book.coverId}-S.jpg`}
                       alt={book.title}
                       className="w-10 h-14 object-cover rounded"
                     />
@@ -437,9 +443,9 @@ export function Shelf({ sessions }: ShelfProps) {
                 onClick={() => setSelectedBook(book)}
                 className="w-full flex items-center gap-3 p-3 rounded-xl bg-card border border-border hover:border-primary/50 transition-colors text-left"
               >
-                {book.coverId ? (
+                {bookCovers[book.key] || book.coverId ? (
                   <img
-                    src={`https://covers.openlibrary.org/b/id/${book.coverId}-S.jpg`}
+                    src={bookCovers[book.key] || `https://covers.openlibrary.org/b/id/${book.coverId}-S.jpg`}
                     alt={book.title}
                     className="w-10 h-14 object-cover rounded"
                   />
@@ -464,6 +470,7 @@ export function Shelf({ sessions }: ShelfProps) {
           book={selectedBook}
           isOpen={!!selectedBook}
           onClose={() => setSelectedBook(null)}
+          onCoverUpdate={handleCoverUpdate}
         />
       )}
     </div>

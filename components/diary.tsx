@@ -8,7 +8,8 @@ import { formatDistanceToNow } from 'date-fns'
 import { cn } from '@/lib/utils'
 
 interface DiaryProps {
-  sessions: ReadingSession[]
+  sessions: ReadingSession[];
+  bookCovers: {[key: string]: string};
 }
 
 interface BookGrouping {
@@ -18,7 +19,7 @@ interface BookGrouping {
   latestRating: number
 }
 
-export function Diary({ sessions }: DiaryProps) {
+export function Diary({ sessions, bookCovers }: DiaryProps) {
   const [expandedBook, setExpandedBook] = useState<string | null>(null)
   const [selectedSession, setSelectedSession] = useState<ReadingSession | null>(null)
 
@@ -88,9 +89,9 @@ export function Diary({ sessions }: DiaryProps) {
               className="w-full p-4 rounded-xl bg-card border border-border hover:border-primary/50 transition-colors text-left"
             >
               <div className="flex gap-3 items-start">
-                {group.book.coverId ? (
+                {bookCovers[group.book.key] || group.book.coverId ? (
                   <img
-                    src={`https://covers.openlibrary.org/b/id/${group.book.coverId}-S.jpg`}
+                    src={bookCovers[group.book.key] || `https://covers.openlibrary.org/b/id/${group.book.coverId}-S.jpg`}
                     alt={group.book.title}
                     className="w-12 h-18 object-cover rounded-lg"
                   />
@@ -182,9 +183,9 @@ export function Diary({ sessions }: DiaryProps) {
             </button>
 
             <div className="flex gap-4 mb-6">
-              {selectedSession.book.coverId ? (
+              {bookCovers[selectedSession.book.key] || selectedSession.book.coverId ? (
                 <img
-                  src={`https://covers.openlibrary.org/b/id/${selectedSession.book.coverId}-M.jpg`}
+                  src={bookCovers[selectedSession.book.key] || `https://covers.openlibrary.org/b/id/${selectedSession.book.coverId}-M.jpg`}
                   alt={selectedSession.book.title}
                   className="w-16 h-24 object-cover rounded-lg"
                 />

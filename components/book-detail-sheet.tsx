@@ -5,6 +5,7 @@ import { X, Book as BookIcon, ExternalLink } from 'lucide-react'
 import { Book } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { AuthorSheet } from '@/components/author-sheet'
+import { BookCoverUpload } from '@/app/components/book-cover-upload'
 
 interface BookDetailSheetProps {
   book: Book
@@ -14,6 +15,11 @@ interface BookDetailSheetProps {
 
 export function BookDetailSheet({ book, isOpen, onClose }: BookDetailSheetProps) {
   const [showAuthor, setShowAuthor] = useState(false)
+  const [coverUrl, setCoverUrl] = useState(book.coverId ? `https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg` : '');
+
+  const handleUploadComplete = (newCoverUrl: string) => {
+    setCoverUrl(newCoverUrl);
+  };
 
   if (!isOpen) return null
 
@@ -43,9 +49,9 @@ export function BookDetailSheet({ book, isOpen, onClose }: BookDetailSheetProps)
             <div className="flex gap-4">
               {/* Cover */}
               <div className="shrink-0">
-                {book.coverId ? (
+                {coverUrl ? (
                   <img
-                    src={`https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg`}
+                    src={coverUrl}
                     alt={book.title}
                     className="w-28 h-auto rounded-lg shadow-lg"
                   />
@@ -83,6 +89,9 @@ export function BookDetailSheet({ book, isOpen, onClose }: BookDetailSheetProps)
                   View on Open Library
                 </a>
               </div>
+            </div>
+            <div className="mt-4">
+              <BookCoverUpload book={book} onUploadComplete={handleUploadComplete} />
             </div>
           </div>
 

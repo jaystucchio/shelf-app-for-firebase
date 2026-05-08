@@ -2,6 +2,7 @@ import { ReadingSession, Book } from './types'
 
 const STORAGE_KEY = 'folio-sessions'
 const FAVORITES_KEY = 'folio-favorites'
+const BOOK_COVERS_KEY = 'folio-book-covers'
 
 export function getSessions(): ReadingSession[] {
   if (typeof window === 'undefined') return []
@@ -23,6 +24,16 @@ export function getFavorites(): Book[] {
 
 export function saveFavorites(favorites: Book[]): void {
   localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites))
+}
+
+export function getBookCovers(): {[key: string]: string} {
+  if (typeof window === 'undefined') return {}
+  const data = localStorage.getItem(BOOK_COVERS_KEY)
+  return data ? JSON.parse(data) : {}
+}
+
+export function saveBookCovers(covers: {[key: string]: string}): void {
+  localStorage.setItem(BOOK_COVERS_KEY, JSON.stringify(covers))
 }
 
 export function generateId(): string {

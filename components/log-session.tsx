@@ -9,6 +9,7 @@ import { StarRating } from '@/components/star-rating'
 import { Book, ReadingStatus, STATUS_LABELS, DNF_REASONS } from '@/lib/types'
 import { saveSession, generateId } from '@/lib/storage'
 import { cn } from '@/lib/utils'
+import { BookCoverUpload } from '@/app/components/book-cover-upload'
 
 interface OpenLibraryResult {
   key: string
@@ -22,7 +23,9 @@ interface OpenLibraryResult {
 }
 
 interface LogSessionProps {
-  onSessionSaved: () => void
+  onSessionSaved: () => void;
+  bookCovers: {[key: string]: string};
+  onCoverUpdate: (bookKey: string, newCoverUrl: string) => void;
 }
 
 const REFLECTION_PROMPTS = [
@@ -36,7 +39,7 @@ const REFLECTION_PROMPTS = [
   { id: 'question', label: 'Questions I have', prompt: 'What questions do you have after this reading?' },
 ]
 
-export function LogSession({ onSessionSaved }: LogSessionProps) {
+export function LogSession({ onSessionSaved, bookCovers, onCoverUpdate }: LogSessionProps) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<Book[]>([])
   const [selectedBook, setSelectedBook] = useState<Book | null>(null)
@@ -242,9 +245,9 @@ export function LogSession({ onSessionSaved }: LogSessionProps) {
                   onClick={() => handleSelectBook(book)}
                   className="w-full flex items-center gap-3 p-3 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors text-left"
                 >
-                  {book.coverId ? (
+                  {bookCovers[book.key] || book.coverId ? (
                     <img
-                      src={`https://covers.openlibrary.org/b/id/${book.coverId}-S.jpg`}
+                      src={bookCovers[book.key] || `https://covers.openlibrary.org/b/id/${book.coverId}-S.jpg`}
                       alt={book.title}
                       className="w-10 h-14 object-cover rounded"
                     />
@@ -276,9 +279,9 @@ export function LogSession({ onSessionSaved }: LogSessionProps) {
       {selectedBook && (
         <div className="space-y-6">
           <div className="flex items-start gap-4 p-4 rounded-xl bg-card border border-border">
-            {selectedBook.coverId ? (
+            {bookCovers[selectedBook.key] || selectedBook.coverId ? (
               <img
-                src={`https://covers.openlibrary.org/b/id/${selectedBook.coverId}-M.jpg`}
+                src={bookCovers[selectedBook.key] || `https://covers.openlibrary.org/b/id/${selectedBook.coverId}-M.jpg`}
                 alt={selectedBook.title}
                 className="w-16 h-24 object-cover rounded-lg shadow-lg"
               />
@@ -306,6 +309,8 @@ export function LogSession({ onSessionSaved }: LogSessionProps) {
               <X className="h-4 w-4 text-muted-foreground" />
             </button>
           </div>
+
+          <BookCoverUpload book={selectedBook} onUploadComplete={(newCoverUrl) => onCoverUpdate(selectedBook.key, newCoverUrl)} />
 
           {/* Status */}
           <div className="space-y-2">

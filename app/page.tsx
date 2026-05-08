@@ -5,20 +5,32 @@ import { TabBar, TabId } from '@/components/tab-bar'
 import { LogSession } from '@/components/log-session'
 import { Diary } from '@/components/diary'
 import { Shelf } from '@/components/shelf'
-import { getSessions } from '@/lib/storage'
+import { getSessions, saveBookCovers, getBookCovers } from '@/lib/storage'
 import { ReadingSession } from '@/lib/types'
 
 export default function FolioApp() {
   const [activeTab, setActiveTab] = useState<TabId>('log')
   const [sessions, setSessions] = useState<ReadingSession[]>([])
+  const [bookCovers, setBookCovers] = useState<{[key: string]: string}>({});
 
   const refreshSessions = useCallback(() => {
     setSessions(getSessions())
   }, [])
 
+  const refreshBookCovers = useCallback(() => {
+    setBookCovers(getBookCovers())
+  }, [])
+
   useEffect(() => {
     refreshSessions()
-  }, [refreshSessions])
+    refreshBookCovers()
+  }, [refreshSessions, refreshBookCovers])
+
+  const handleCoverUpdate = (bookKey: string, newCoverUrl: string) => {
+    const updatedCovers = {...bookCovers, [bookKey]: newCoverUrl};
+    setBookCovers(updatedCovers);
+    saveBookCovers(updatedCovers);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,13 +48,13 @@ export default function FolioApp() {
         <div
           className={activeTab === 'log' ? 'animate-in fade-in duration-300' : 'hidden'}
         >
-          <LogSession onSessionSaved={refreshSessions} />
+          <LogSession onSessionSaved={refreshSessions} bookCovers={bookCovers} onCoverUpdate={handleCoverUpdate} />
         </div>
 
         <div
           className={activeTab === 'diary' ? 'animate-in fade-in duration-300' : 'hidden'}
         >
-          <Diary sessions={sessions} />
+          <Diary sessions={sessions} bookCovers={bookCovers} />
         </div>
 
         <div

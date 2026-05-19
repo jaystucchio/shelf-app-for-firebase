@@ -1,1 +1,21 @@
-node_modules
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Test output
+/coverage
+
+# Production build
+/.next/
+/out/
+
+# Miscellaneous
+.DS_Store
+*.pem
+
+# Local environment variables
+.env.local

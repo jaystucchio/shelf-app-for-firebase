@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
@@ -13,12 +14,14 @@ export default function FolioApp() {
   const [sessions, setSessions] = useState<ReadingSession[]>([])
   const [bookCovers, setBookCovers] = useState<{[key: string]: string}>({});
 
-  const refreshSessions = useCallback(() => {
-    setSessions(getSessions())
+  const refreshSessions = useCallback(async () => {
+    const sessions = await getSessions();
+    setSessions(sessions)
   }, [])
 
-  const refreshBookCovers = useCallback(() => {
-    setBookCovers(getBookCovers())
+  const refreshBookCovers = useCallback(async () => {
+    const covers = await getBookCovers();
+    setBookCovers(covers)
   }, [])
 
   useEffect(() => {
@@ -26,10 +29,10 @@ export default function FolioApp() {
     refreshBookCovers()
   }, [refreshSessions, refreshBookCovers])
 
-  const handleCoverUpdate = (bookKey: string, newCoverUrl: string) => {
+  const handleCoverUpdate = async (bookKey: string, newCoverUrl: string) => {
     const updatedCovers = {...bookCovers, [bookKey]: newCoverUrl};
     setBookCovers(updatedCovers);
-    saveBookCovers(updatedCovers);
+    await saveBookCovers(updatedCovers);
   };
 
   return (

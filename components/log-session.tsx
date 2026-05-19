@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useCallback, useRef } from 'react'
@@ -149,7 +150,7 @@ export function LogSession({ onSessionSaved, bookCovers, onCoverUpdate }: LogSes
     }
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!selectedBook) return
     if (status === 'did-not-finish' && !dnfReason) {
       alert('Please select why you stopped reading')
@@ -158,31 +159,37 @@ export function LogSession({ onSessionSaved, bookCovers, onCoverUpdate }: LogSes
 
     setIsSaving(true)
     
-    const session = {
-      id: generateId(),
-      book: selectedBook,
-      rating: status === 'finished' ? rating : 0,
-      status,
-      pagesRead: parseInt(pagesRead) || 0,
-      note,
-      promptLabel: selectedPrompt.label,
-      dnfReason: status === 'did-not-finish' ? (dnfReason as 'did-not-enjoy' | 'too-slow' | 'not-my-genre' | 'other') : undefined,
-      createdAt: new Date().toISOString(),
-    }
+    try {
+      const session = {
+        id: generateId(),
+        book: selectedBook,
+        rating: status === 'finished' ? rating : 0,
+        status,
+        pagesRead: parseInt(pagesRead) || 0,
+        note,
+        promptLabel: selectedPrompt.label,
+        dnfReason: status === 'did-not-finish' ? (dnfReason as 'did-not-enjoy' | 'too-slow' | 'not-my-genre' | 'other') : undefined,
+        createdAt: new Date().toISOString(),
+      }
 
-    saveSession(session)
-    
-    // Reset form
-    setSelectedBook(null)
-    setRating(0)
-    setStatus('reading')
-    setPagesRead('')
-    setNote('')
-    setDnfReason('')
-    setSelectedPrompt(REFLECTION_PROMPTS[0])
-    setIsSaving(false)
-    
-    onSessionSaved()
+      await saveSession(session)
+      
+      // Reset form
+      setSelectedBook(null)
+      setRating(0)
+      setStatus('reading')
+      setPagesRead('')
+      setNote('')
+      setDnfReason('')
+      setSelectedPrompt(REFLECTION_PROMPTS[0])
+      
+      onSessionSaved()
+    } catch (error) {
+      console.error('Failed to save session:', error);
+      // Optionally, show an error message to the user
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleBarcodeClick = () => {

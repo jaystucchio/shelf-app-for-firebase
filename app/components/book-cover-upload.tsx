@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Book } from "@/lib/types";
+import { storage } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export function BookCoverUpload({ book, onUploadComplete }: { book: Book; onUploadComplete: (newCoverUrl: string) => void }) {
   const [file, setFile] = useState<File | null>(null);
@@ -31,12 +33,10 @@ export function BookCoverUpload({ book, onUploadComplete }: { book: Book; onUplo
 
     setIsUploading(true);
     try {
-      // In a real application, you would upload the file to a storage service
-      // and get a URL back. For this example, we'''ll simulate that.
-      const newCoverUrl = URL.createObjectURL(file);
+      const storageRef = ref(storage, `book-covers/${book.key}/${file.name}`);
+      await uploadBytes(storageRef, file);
+      const newCoverUrl = await getDownloadURL(storageRef);
 
-      // Here you would typically update the book data in your database
-      // For now, we'''ll just call the callback with the new URL
       onUploadComplete(newCoverUrl);
 
       toast({
